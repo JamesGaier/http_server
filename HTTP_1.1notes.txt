@@ -98,4 +98,78 @@ HTTP 1.1/notes
 - DELETE is seldom used and usually constrained to a resource that the user created with a PUT request
 - CONNECT forms a tunnel connection with a server when requested
 - not cacheable
-- 
+- OPTIONS tells the requester the options available to them
+- should send header fields indicating optional features 
+- not cacheable
+- e.g. Allow
+- Content-Length is 0 if not body served
+- TRACE
+- Requests an application level loop back of the request message
+- Client must not generate header fields in TRACE request
+- The field Max-Forwards limits the length of the request chain
+- Message body must be empty
+- not cachable
+- Expect header
+- expects certian set of behaviors that need to be properly handled
+- e.g. Expect = "100-continue"
+- serves as an acknowledgement to send the message body of really really large http requests
+- For example if a Content-Type h264 (mp4) request is being sent with 1GB of video data an optimization that could be made is to add 100-continue to the Expect header
+- This would make sure that the 1GB video frame is only sent if the server wishes to recieve it
+- erros that can be expected from 100-continue are 401 (Unauthorized) and 405 (Method not Allowed)
+- clients can only do 100-continue Expect messages if they contain a message body
+- clients that wait on a 100-continue response must set expect field
+- clients can send the message body before a response is received.  Do not wait indefinately
+- If the client receives a 417 (Expectation Failed) the client should re-send the http request without the 100-continue expectation
+- HTTP/1.0 servers that recieve a 100-continue must ignore the expectation
+- server can avoid sending response if partial message body was received or no message body was sent
+- server that sends final response with status code should indicate whether connection will be closed or stay open
+- HTTP/1.1 or later server must send immediate response with final status code if status can be determined by reading headers
+- or response to encourage client to send message body
+- server must not wait for message body before sending response
+- proxy will either send immediate response or forward request to origin server
+- Max-Forwards
+- can be used to limit the number of times a TRACE request is forwarded between proxy servers
+- can be used to test proxy server looping chain
+- once Max-Forwards is 0 it must not be forwarded
+- field can be ignored for all other request methods
+- Accept
+- tells the server what format to serve content to the user agent
+- for example text/html, text/plain, text/x-c etc.
+- you can also specify weights using q=(0-1.0) value.  Higher weights means the content type is more preferred
+- you can also specify the type of character encoding like utf-8 unicode 1-1 etc.
+- you can use Accept-Encoding to specify the type of encoding with the same format for weighted preference q=(0-1.0)
+- If none specified then any encoding is acceptable
+- Accept Language
+- langauge that the http request will be served in
+- can be any type i.e. en-US en-gb etc.
+- same weight can be applied to preferences
+- two fields are defined for authentication: Authorization and Proxy-Authorization
+- cookies can be stored in these fields
+- From, Referer, and User-Agent are for providing information about the user agent
+- From
+- an email address of the user controlling the user-agent
+- From is expressly for a bot/program user-agent not a human
+- Server should also not user From
+- Referer
+- provides a back link to where the uri in the request was obtained
+- used for data analytics
+- User-Agent field contains information about the user-agent making the request
+- i.e. mine is Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0
+- Clients do not need to know every status code
+- instead classes of status codes should be handled i.e. 1xx, 2xx, 3xx, 4xx
+- 1xx Informational: request received continue processing
+- 2xx Success: The request was successfully received, complete the request
+- 3xx Redirection: more action needs to be made to complete the request
+- 4xx Client Error: The request contains bad syntax or cannot be fullfilled
+- 5xx Server Error: The server failed to fulfill an apparently valid request
+- Responses with status codes are cachable by default
+- 101 switch protocols on the server e.g. HTTP 1.0 -> 1.1
+- 200 OK - 
+- GET returns a representation of target resource
+- HEAD same as GET no representation data
+- POST current status of representation
+- PUT, DELETE representation of action
+- OPTIONS representation of communication options
+- TRACE representation of request message
+- only CONNECT has empty payload
+- left off on page 51 
