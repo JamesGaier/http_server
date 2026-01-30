@@ -1,0 +1,101 @@
+HTTP 1.1/notes
+
+- HTTP has 2 message types request and response
+- server listens for requests
+- responds with one or more response
+- Target of http request is called a resource
+- Content-Type is the type of media that will be included in the message i.e. text/html for example
+- resources are identified by URI (Uniform Resource Identifier)
+- HTTP messages can be encoded, compressed, or decompressed with programs like gzip
+- Used in Content-Encoding field
+- e.g. compress, deflate, gzip
+- Language for a message can be defined in Content-Language header field
+- i.e. en-US az-Arab etc.
+- you can also provide multiple languages in Content-Language
+- Content-Language: en-US az-Arab
+- Content-Location identifies the location of a resource URI
+- cannot be trusted unless verified
+- For response messages 
+- If request is GET or HEAD and status code is 200 (OK), 204 (NO CONTENT), 206 (PARTIAL CONTENT) or 304 (NOT MODIFIED), then payload is resource requested by URI in request
+- if GET or HEAD and 203 (Non-Authoritative Information) code then payload is maybe modified or enhanced
+- If the request's Content-Location header field is the same as the response then the payload is that resource
+- If response has Content-Location if the request URI does not match response URI then payload is resource from response URI
+- Otherwise payload is unidentified
+- If Content-Location is 2xx (Success) status response and URI on request and response match then payload is resource identified by URI
+- PUT and POST are state changing requests that prompt server to send back resource after state change
+- Only PUT or POST required when doing state change since resource is returned by server no extra GET required
+- If 2xx (success) response and Content-Location is different from request Content-Location:
+- Then server is sending different resource than one requested
+- For GET and HEAD - if the response URL is different it means that resource can be content negotiated 
+- This means that there is a more specific URI to identify resource than what was requested
+- 201 response code to state changing request i.e. (PUT) (POST) Content-Location fields match means that payload contains newly created resource
+- Otherwise payload is a representation on what was requested for example a POST request for a payment was made then the response's payload is a pdf of the receipt
+-  if Content-Location is in request then its a backlink to original resource
+- if Content-Location is in request then must be transitory context NOT metadata
+- do not modify request semantics because of Content-Location
+- representation data is obtained by taking the Content-Type and wrapping it in the Content-Encoding i.e. you encode the content type
+- For GET 200 OK means resource is in good state
+- For state changing request 200 (OK) means resource after state change is ok
+- if status code is error usually payload is error message explaining what went wrong
+- Content negotiation is done in two ways in RFC 7231...
+- proactive where choice is made for user agent
+- reactive where user agent chooses from list of options
+- proactive is done when its too complicated for user agent to choose
+- Server never knows what is best content selection method user agent must choose
+- is inefficient and has privacy risks
+- Reactive negotiation
+- User agent is supplied alternative links to target resource
+- User agent can GET request alternative
+- alternative can be automatically selected by user agent or manually by user clicking link
+- Better when user can influence alternative i.e. language, encoding
+- method broadly speaking are all of the REST operations Create read update destroy
+- i.e. GET, get the current target resource
+- HEAD GET but only return status line and header
+- POST modify resource return result
+- PUT update all instances of resource with request payload
+- DELETE remove all instances of target resource
+- CONNECT make tunnel to server with identity of target resource
+- OPTIONS describe communication options for target resource
+- TRACE do loop back test on path of target resource
+- Allow field constrains methods used
+- respond with 501 (Not Implemented) if method is not recognized or implemented
+- if request method is known but not allowed then 405 (Method Not Allowed)
+- "Safe" methods (read-only) do not modify a resource on the server
+- An idempotent method is a method that has the same effect on the first request as the nth request
+- e.g. PUT and DELETE and safe methods
+- GET requests request a target resource.  The URI is sometimes implemented as a path on the server but can be done differently see RFC
+- HEAD is the same as GET but the server must not respond with a message body
+- Can be used to test if a resource is on the server or validity of link
+- Responses to head requests can be cached
+- do not fill out a HEAD payload for request, may be rejected by server not required
+- POST requires that the target resource process the representation in the message.
+- e.g. adding a message to a bulletin board
+- Any time one or more resources is created on an origin server send back 201 status code
+- A post request response can only be cached if the responses have freshness information
+- not widely implemented
+- If the POST results in the creation of an existing resource then the server can direct the user to the existing resource 303
+- PUT requests that target resource be updated or created with state of representation in payload
+- State change not observable because other user agents can issue the same state change update request in parallel
+- If there is no representation then the server must create one and issue a 201 (Created)
+- If there is a representation then the server must update the state and must return 200 (OK) or 204 (No Content)
+- Ignore unrecognized fields in PUT request
+- When a PUT request requests a state change on the representation that is incorrect then server should amend target resource or return 409 (Conflict) or 415 (Unsupported Media Type)
+- i.e. target resource is configured to be text/html Content-Type but representation in PUT is Content-Type of image/jpeg
+- For this specific case server should either:
+- reconfigure target resource to be new media type
+- transform the PUT representation to a format consistent with that of the resource before saving it as a new resource state
+- reject the request with a 415 (Unsupported Media Type) response indicating the resource is limited to text/html and potentially link to a different resource that would be a more suitable target for the new representation
+- origin server must not send validator header field unless the resource's new representation data is identail to the representation data received in the PUT request
+- PUT is different from POST in that POST's representation is handled by the rules of its own resource's semantics whereas PUT is only indented to replace the state of the target resource
+- If a PUT request is sent and the Content-Location in the response does not match the Content-Location in the request then the response should have a 3xx (Redirection) response.
+- The user agent can then decide whether to redirect
+- PUT request that contains Content-Range header must be responded to with 400 (Bad Request) error code
+- PUT request on one target resource can effect multiple target resources
+- e.g. URI may have identifier for current version of resource and identifier for particular version. When PUT request is issued current version is updated AND new version resource is created.
+- responses to a PUT are NOT cacheable
+- DELETE removes the URI to the resource... Resource can still hang around on server and be cleaned up at some later point of the server's choosing
+- If the resource is duplicated it may or may not be destroyed on the server depends on implementation bro
+- DELETE is seldom used and usually constrained to a resource that the user created with a PUT request
+- CONNECT forms a tunnel connection with a server when requested
+- not cacheable
+- 
