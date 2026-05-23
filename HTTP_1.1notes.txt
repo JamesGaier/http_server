@@ -173,3 +173,37 @@ HTTP 1.1/notes
 - TRACE representation of request message
 - only CONNECT has empty payload
 - left off on page 51 
+
+
+http_uri = http:// authority path-abempty ["?" query]
+
+authority = hostname:port
+
+if no port specified defaults to tcp/80
+
+- when the http uri is normalized they are all the same
+
+below are normalization rules:
+
+- If the port is equal to the default port for a scheme, the normal form is to omit the port subcomponent.
+- When not being used as the target of an OPTIONS request, an empty path component is equivalent to an absolute path of "/", so the normal form is to provide a path of "/" instead.
+- The scheme and host are case-insensitive and normally provided in lowercase; all other components are compared in a case-sensitive manner.
+- Characters other than those in the "reserved" set are equivalent to their percent-encoded octets: the normal form is to not encode them (see Sections 2.1 and 2.2 of [URI]).
+
+
+origin = { scheme = http | https , host = the host name of the server i.e. example.com, port = 80 if http 443 if https }
+
+- message framing is done by checking the content length field
+- if message is not equal to content length then message is not complete
+- if message does not have content length then close of connection valid message
+- 505 is for version not  supported of http
+
+
+- Server needs to have clock and append "Date" field with date like so: Tue, 15 Nov 1994 08:12:31 GMT
+
+
+- Requests need to have hostname and method for example http://www.example.org/pub/WWW/ ->
+
+Get: /pub/WWW/ HTTP/1.1
+Host: www.example.org
+
